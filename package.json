@@ -14,7 +14,7 @@
     "client:build:prod": "webpack --watch --config client/webpack.prod.js",
     "client:build:analyze": "webpack --config client/webpack.prod.js --json >> build/bundle.json",
     "client:clean": "rm -rf dist build",
-    "client:test": "mocha test/client/**/*.ts",
+    "client:test": "mocha --watch test/client/**/*.ts",
     "server:debug": "node debug server/app.js",
     "server:start:dev": "sudo node server/app.js",
     "server:start:prod": "sudo node server/app.js --prod",
