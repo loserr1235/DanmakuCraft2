@@ -9,4 +9,6 @@ module.exports = {
     cert: readFileSync('/etc/letsencrypt/live/danmakucraft.com/fullchain.pem'),
     key: readFileSync('/etc/letsencrypt/live/danmakucraft.com/privkey.pem'),
   },
+
+  bundleFileUrl: '/static/prod/bundle.js',
 };
