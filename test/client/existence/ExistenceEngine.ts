@@ -5,8 +5,8 @@ import Entity from '../../../client/src/entitySystem/Entity';
 import AddChildToRegionSystem from '../../../client/src/entitySystem/system/existence/AddChildToRegionSystem';
 import ExistenceSystem from '../../../client/src/entitySystem/system/existence/ExistenceSystem';
 import {Phaser} from '../../../client/src/util/alias/phaser';
-import EntityFinder, {StateChanged} from '../../../client/src/util/entityStorage/EntityFinder';
-import QuadTreeEntityFinder from '../../../client/src/util/entityStorage/quadtree/QuadtreeEntityFinder';
+import EntityFinder from '../../../client/src/util/entityStorage/EntityFinder';
+import QuadtreeEntityStorage from '../../../client/src/util/entityStorage/QuadtreeEntityStorage';
 import Iterator from '../../../client/src/util/syntax/Iterator';
 
 describe('ExistenceEngine', () => {
@@ -93,6 +93,8 @@ describe('ExistenceRelation', () => {
   let enteringEntities: Entity[][];
   let exitingEntities: Entity[][];
   let entityFinder: EntityFinder<Entity>;
+  let registeredSignal: Phaser.Signal<ReadonlyArray<Entity>>;
+  let deregisteredSignal: Phaser.Signal<ReadonlyArray<Entity>>;
 
   beforeEach(() => {
     mockSystem = mock(AddChildToRegionSystem);
@@ -100,11 +102,13 @@ describe('ExistenceRelation', () => {
     enteringEntities = [mockEnteringEntities.map(instance)];
     const mockExitingEntities = [mock(Entity), mock(Entity)];
     exitingEntities = [mockExitingEntities.map(instance)];
-    mockEntityFinder = mock(QuadTreeEntityFinder);
+    mockEntityFinder = mock(QuadtreeEntityStorage);
     entityFinder = instance(mockEntityFinder);
     entityFinder[Symbol.iterator] = () => Iterator.of([]);
-
-    when(mockEntityFinder.onStateChanged).thenReturn(new Phaser.Signal());
+    registeredSignal = new Phaser.Signal();
+    deregisteredSignal = new Phaser.Signal();
+    when(mockEntityFinder.onEntitiesRegistered).thenReturn(registeredSignal);
+    when(mockEntityFinder.onEntitiesDeregistered).thenReturn(deregisteredSignal);
     mockEntityFinder[Symbol.iterator] = () => Iterator.of([]);
 
     relation = new ExistenceRelation(
@@ -152,12 +156,14 @@ describe('ExistenceRelation', () => {
   });
 
   it('should update on signal.', () => {
-    const signal: Phaser.Signal<StateChanged<Entity>> = new Phaser.Signal();
-    when(mockEntityFinder.onStateChanged).thenReturn(signal);
+    const registeredSignal2 = new Phaser.Signal<ReadonlyArray<Entity>>();
+    when(mockEntityFinder.onEntitiesRegistered).thenReturn(registeredSignal2);
+    const deregisteredSignal2 = new Phaser.Signal<ReadonlyArray<Entity>>();
+    when(mockEntityFinder.onEntitiesDeregistered).thenReturn(deregisteredSignal2);
 
     const relation2 = new ExistenceRelation(instance(mockSystem), entityFinder);
-    signal.dispatch(
-        new StateChanged(enteringEntities[0], exitingEntities[0]));
+    registeredSignal2.dispatch(enteringEntities[0]);
+    deregisteredSignal2.dispatch(exitingEntities[0]);
 
     expect(relation2).to.deep.equal(relation);
   });

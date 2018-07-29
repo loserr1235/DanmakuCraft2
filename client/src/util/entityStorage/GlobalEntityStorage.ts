@@ -5,13 +5,13 @@ import {Phaser} from '../alias/phaser';
 import Distance from '../math/Distance';
 import Iterator from '../syntax/Iterator';
 import Point from '../syntax/Point';
-import {StateChanged} from './EntityFinder';
 import EntityStorage from './EntityStorage';
 
 class GlobalEntityStorage<T extends Entity> implements EntityStorage<T> {
   constructor(
       private readonly entities = new Set<T>(),
-      readonly onStateChanged = new Phaser.Signal<StateChanged<T>>()) {
+      readonly onEntitiesRegistered = new Phaser.Signal<ReadonlyArray<T>>(),
+      readonly onEntitiesDeregistered = new Phaser.Signal<ReadonlyArray<T>>()) {
   }
 
   static create<T extends Entity>(): GlobalEntityStorage<T> {
@@ -40,19 +40,19 @@ class GlobalEntityStorage<T extends Entity> implements EntityStorage<T> {
     }
     this.entities.add(entity);
 
-    this.onStateChanged.dispatch(new StateChanged([entity]));
+    this.onEntitiesRegistered.dispatch([entity]);
   }
 
   registerBatch(entities: Iterable<T>) {
-    const addedEntities = asSequence(entities)
+    const registeredEntities = asSequence(entities)
         .filter(entity => !this.entities.has(entity))
         .onEach(entity => this.entities.add(entity))
         .toArray();
 
-    if (addedEntities.length === 0) {
+    if (registeredEntities.length === 0) {
       return;
     }
-    this.onStateChanged.dispatch(new StateChanged(addedEntities));
+    this.onEntitiesRegistered.dispatch(registeredEntities);
   }
 
   deregister(entity: T) {
@@ -62,7 +62,7 @@ class GlobalEntityStorage<T extends Entity> implements EntityStorage<T> {
       return;
     }
 
-    this.onStateChanged.dispatch(new StateChanged([], [entity]));
+    this.onEntitiesDeregistered.dispatch([entity]);
   }
 
   [Symbol.iterator](): Iterator<T> {

@@ -8,13 +8,13 @@ import Iterator from '../syntax/Iterator';
 import Point from '../syntax/Point';
 import Provider from '../syntax/Provider';
 import Rectangle from '../syntax/Rectangle';
-import {StateChanged} from './EntityFinder';
 import EntityStorage from './EntityStorage';
 
 class QuadtreeEntityStorage<T extends StationaryEntity> implements EntityStorage<T> {
   constructor(
       private readonly tree: Quadtree<T>,
-      readonly onStateChanged = new Phaser.Signal<StateChanged<T>>()) {
+      readonly onEntitiesRegistered = new Phaser.Signal<ReadonlyArray<T>>(),
+      readonly onEntitiesDeregistered = new Phaser.Signal<ReadonlyArray<T>>()) {
   }
 
   static create<T extends StationaryEntity>(
@@ -48,10 +48,13 @@ class QuadtreeEntityStorage<T extends StationaryEntity> implements EntityStorage
   }
 
   private dispatchUpdatesOfChunks(provider: Provider<[Iterable<Region<T>>, Iterable<Region<T>>]>) {
-    const [addedChunks, removedChunks] =
+    const [registeredEntities, deregisteredEntities] =
         provider().map(chunks => asSequence(chunks).flatten().toArray());
-    if (addedChunks.length > 0 || removedChunks.length > 0) {
-      this.onStateChanged.dispatch(new StateChanged(addedChunks, removedChunks));
+    if (registeredEntities.length) {
+      this.onEntitiesRegistered.dispatch(registeredEntities);
+    }
+    if (deregisteredEntities.length) {
+      this.onEntitiesDeregistered.dispatch(deregisteredEntities);
     }
   }
 }
