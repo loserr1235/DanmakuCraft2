@@ -10,5 +10,10 @@ module.exports = {
     key: readFileSync('/etc/letsencrypt/live/danmakucraft.com/privkey.pem'),
   },
 
+  models: {
+    // see `sails.config.connections`
+    connection: 'localPostgresqlServer',
+  },
+
   bundleFileUrl: '/static/prod/bundle.js',
 };
