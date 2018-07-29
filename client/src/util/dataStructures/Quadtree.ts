@@ -1,21 +1,20 @@
 import {asSequence} from 'sequency';
-import {Region} from '../../../entitySystem/alias';
-import ImmutableCoordinates from '../../../entitySystem/component/ImmutableCoordinates';
-import Entity from '../../../entitySystem/Entity';
-import {toWorldBounds} from '../../../law/space';
-import PhysicalConstants from '../../../PhysicalConstants';
-import {leftOuterJoin} from '../../set';
-import Consumer from '../../syntax/Consumer';
-import Iterator from '../../syntax/Iterator';
-import Point from '../../syntax/Point';
-import Rectangle from '../../syntax/Rectangle';
-import ImmutableContainer from '../ImmutableContainer';
+import {Region, StationaryEntity} from '../../entitySystem/alias';
+import ImmutableCoordinates from '../../entitySystem/component/ImmutableCoordinates';
+import {toWorldBounds} from '../../law/space';
+import PhysicalConstants from '../../PhysicalConstants';
+import {leftOuterJoin} from '../set';
+import Consumer from '../syntax/Consumer';
+import Iterator from '../syntax/Iterator';
+import Point from '../syntax/Point';
+import Rectangle from '../syntax/Rectangle';
+import ImmutableContainer from './ImmutableContainer';
 
-class Quadtree<T extends Entity> implements Iterable<T> {
+class Quadtree<T extends StationaryEntity> implements Iterable<T> {
   constructor(private root: Tree<T>) {
   }
 
-  static empty<T extends Entity>(maxValuesCount: number, maxDepth: number): Quadtree<T> {
+  static empty<T extends StationaryEntity>(maxValuesCount: number, maxDepth: number): Quadtree<T> {
     const bounds = Rectangle.sized(PhysicalConstants.WORLD_SIZE);
     const root = new Leaf<T>(bounds, maxDepth, maxValuesCount);
     return new this(root);
@@ -74,7 +73,7 @@ class Quadtree<T extends Entity> implements Iterable<T> {
 
 export default Quadtree;
 
-export interface Tree<T extends Entity> extends ImmutableContainer<T> {
+export interface Tree<T extends StationaryEntity> extends ImmutableContainer<T> {
   listIn(bounds: Rectangle): Iterable<T>;
 
   add(value: T, addedLeaves?: Set<Leaf<T>>, removedLeaves?: Set<Leaf<T>>): Tree<T>;
@@ -82,7 +81,7 @@ export interface Tree<T extends Entity> extends ImmutableContainer<T> {
   remove(value: T, addedLeaves?: Set<Leaf<T>>, removedLeaves?: Set<Leaf<T>>): Tree<T>;
 }
 
-export class Node<T extends Entity> implements Tree<T> {
+export class Node<T extends StationaryEntity> implements Tree<T> {
   /**
    * @param {Array<Tree<T>>} children [topLeft, topRight, bottomLeft, bottomRight]
    * @param {Rectangle} bounds
@@ -139,7 +138,7 @@ export class Node<T extends Entity> implements Tree<T> {
   }
 }
 
-export class Leaf<T extends Entity> extends ImmutableCoordinates implements Tree<T> {
+export class Leaf<T extends StationaryEntity> extends ImmutableCoordinates implements Tree<T> {
   constructor(
       private readonly bounds: Rectangle,
       private readonly maxDepth: number,
@@ -241,7 +240,7 @@ export class Leaf<T extends Entity> extends ImmutableCoordinates implements Tree
     return newLeaf;
   }
 
-  private newChildLeaf<U extends Entity>(bounds: Rectangle): Leaf<U> {
+  private newChildLeaf<U extends StationaryEntity>(bounds: Rectangle): Leaf<U> {
     return new Leaf(bounds, this.maxDepth, this.maxValuesCount, this.depth + 1);
   }
 }

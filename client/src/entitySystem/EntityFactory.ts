@@ -1,16 +1,8 @@
-import {
-  ChestEntity,
-  CommentEntity,
-  DisplayableRegion,
-  Player,
-  SignEntity,
-  StationaryEntity,
-  UpdatingCommentEntity
-} from './alias';
 import CommentData from '../comment/CommentData';
-import Point from '../util/syntax/Point';
 import {PIXI} from '../util/alias/phaser';
-import ImmutableContainer from '../util/entityStorage/ImmutableContainer';
+import ImmutableContainer from '../util/dataStructures/ImmutableContainer';
+import Point from '../util/syntax/Point';
+import {ChestEntity, CommentEntity, DisplayableRegion, Player, SignEntity, StationaryEntity, UpdatingCommentEntity} from './alias';
 
 interface EntityFactory {
   createPlayer(coordinates: Point): Player;

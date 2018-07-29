@@ -1,8 +1,8 @@
 import {expect} from 'chai';
 import {instance, mock} from 'ts-mockito';
 import Entity from '../../../client/src/entitySystem/Entity';
-import SetContainer from '../../../client/src/util/entityStorage/chunk/SetContainer';
-import ImmutableContainer from '../../../client/src/util/entityStorage/ImmutableContainer';
+import ImmutableContainer from '../../../client/src/util/dataStructures/ImmutableContainer';
+import SetContainer from '../../../client/src/util/dataStructures/SetContainer';
 
 describe('SetContainer', () => {
   let mockEntities: Entity[];

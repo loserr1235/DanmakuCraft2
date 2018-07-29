@@ -1,8 +1,8 @@
 import CommentData from '../comment/CommentData';
 import GraphicsFactory from '../render/graphics/GraphicsFactory';
 import {Phaser, PIXI} from '../util/alias/phaser';
-import SetContainer from '../util/entityStorage/chunk/SetContainer';
-import ImmutableContainer from '../util/entityStorage/ImmutableContainer';
+import ImmutableContainer from '../util/dataStructures/ImmutableContainer';
+import SetContainer from '../util/dataStructures/SetContainer';
 import Point from '../util/syntax/Point';
 import {UpdatingCommentEntity} from './alias';
 import Blink from './component/Blink';

@@ -1,7 +1,8 @@
 import {expect} from 'chai';
 import {anything, instance, mock, verify, when} from 'ts-mockito';
+import {StationaryEntity} from '../../../client/src/entitySystem/alias';
 import Entity from '../../../client/src/entitySystem/Entity';
-import Quadtree, {Leaf, Node} from '../../../client/src/util/entityStorage/quadtree/Quadtree';
+import Quadtree, {Leaf, Node} from '../../../client/src/util/dataStructures/Quadtree';
 import {leftOuterJoin} from '../../../client/src/util/set';
 import Point from '../../../client/src/util/syntax/Point';
 import Rectangle from '../../../client/src/util/syntax/Rectangle';
@@ -11,12 +12,12 @@ import chaiShallowDeepEqual = require('chai-shallow-deep-equal');
 chai.use(chaiShallowDeepEqual);
 
 describe('Quadtree.Leaf', () => {
-  let mockEntities: Entity[];
-  let entities: Entity[];
-  let leaf: Leaf<Entity>;
+  let mockEntities: StationaryEntity[];
+  let entities: StationaryEntity[];
+  let leaf: Leaf<StationaryEntity>;
 
   beforeEach(() => {
-    mockEntities = [mock(Entity), mock(Entity), mock(Entity)];
+    mockEntities = [mock(Entity), mock(Entity), mock(Entity)] as any;
     entities = mockEntities.map(instance);
 
     when(mockEntities[0].coordinates).thenReturn(Point.origin());
@@ -35,7 +36,7 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('add() should return a new leaf containing the added value.', () => {
-    const newLeaf = leaf.add(entities[0]) as Leaf<Entity>;
+    const newLeaf = leaf.add(entities[0]) as Leaf<StationaryEntity>;
 
     expect(newLeaf).not.to.equal(leaf);
     expect(newLeaf['values']).to.deep.equal(new Set([entities[0]]));
@@ -56,12 +57,12 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('add() should lift as a node if there are more entities than a leaf could contain.', () => {
-    const node = leaf.add(entities[0]).add(entities[1]) as Node<Entity>;
+    const node = leaf.add(entities[0]).add(entities[1]) as Node<StationaryEntity>;
 
     expect(node['bounds']).to.deep.equal(Rectangle.sized(100));
     expect(node['children'].length).to.equal(4);
 
-    const leaves = node['children'] as Array<Leaf<Entity>>;
+    const leaves = node['children'] as Array<Leaf<StationaryEntity>>;
     expect(leaves[0]['bounds']).to.shallowDeepEqual(Rectangle.sized(50));
     expect(leaves[1]['bounds']).to.shallowDeepEqual(Rectangle.of(50, 0, 50, 50));
     expect(leaves[2]['bounds']).to.shallowDeepEqual(Rectangle.of(0, 50, 50, 50));
@@ -81,21 +82,21 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('add() should keep created leaves.', () => {
-    let addedLeaves: Set<Leaf<Entity>> = new Set();
+    let addedLeaves: Set<Leaf<StationaryEntity>> = new Set();
     const newLeaf = leaf.add(entities[0], addedLeaves);
 
     expect(addedLeaves).to.deep.equal(new Set([newLeaf]));
 
     addedLeaves = new Set();
     const removedLeaves = new Set();
-    const node = newLeaf.add(entities[1], addedLeaves, removedLeaves) as Node<Entity>;
+    const node = newLeaf.add(entities[1], addedLeaves, removedLeaves) as Node<StationaryEntity>;
 
     const actualLeaves = Array.from(leftOuterJoin(addedLeaves, removedLeaves));
     expect(actualLeaves).to.have.members(node['children']);
   });
 
   it('add() should keep replaced leaves.', () => {
-    let removedLeaves: Set<Leaf<Entity>> = new Set();
+    let removedLeaves: Set<Leaf<StationaryEntity>> = new Set();
     const newLeaf1 = leaf.add(entities[0], undefined, removedLeaves);
 
     expect(removedLeaves).to.deep.equal(new Set([leaf]));
@@ -109,14 +110,14 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('add() should not keep created leaves if the entity is already added.', () => {
-    const addedLeaves: Set<Leaf<Entity>> = new Set();
+    const addedLeaves: Set<Leaf<StationaryEntity>> = new Set();
     leaf.add(entities[0]).add(entities[0], addedLeaves);
 
     expect(addedLeaves).to.be.empty;
   });
 
   it('remove() should return a new leaf excluding the removed value.', () => {
-    const newLeaf = leaf.add(entities[0]).remove(entities[0]) as Leaf<Entity>;
+    const newLeaf = leaf.add(entities[0]).remove(entities[0]) as Leaf<StationaryEntity>;
 
     expect(newLeaf).not.to.equal(leaf);
     expect(newLeaf['values']).to.deep.equal(new Set());
@@ -127,7 +128,7 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('remove() should not modify the leaf itself.', () => {
-    const newLeaf1 = leaf.add(entities[0]) as Leaf<Entity>;
+    const newLeaf1 = leaf.add(entities[0]) as Leaf<StationaryEntity>;
     newLeaf1.remove(entities[0]);
 
     expect(newLeaf1['values']).to.deep.equal(new Set([entities[0]]));
@@ -143,14 +144,14 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('remove() should keep created leaves.', () => {
-    const addedLeaves: Set<Leaf<Entity>> = new Set();
+    const addedLeaves: Set<Leaf<StationaryEntity>> = new Set();
     const newLeaf1 = leaf.add(entities[0]).remove(entities[0], addedLeaves);
 
     expect(addedLeaves).to.deep.equal(new Set([newLeaf1]));
   });
 
   it('remove() should keep replaced leaves.', () => {
-    const removedLeaves: Set<Leaf<Entity>> = new Set();
+    const removedLeaves: Set<Leaf<StationaryEntity>> = new Set();
     const newLeaf1 = leaf.add(entities[0]);
     newLeaf1.remove(entities[0], undefined, removedLeaves);
 
@@ -158,7 +159,7 @@ describe('Quadtree.Leaf', () => {
   });
 
   it('remove() should not keep replaced leaves if the entity has not been added.', () => {
-    const removedLeaves: Set<Leaf<Entity>> = new Set();
+    const removedLeaves: Set<Leaf<StationaryEntity>> = new Set();
     leaf.remove(entities[0], undefined, removedLeaves);
 
     expect(removedLeaves).to.be.empty;
@@ -166,14 +167,14 @@ describe('Quadtree.Leaf', () => {
 });
 
 describe('Quadtree.Node', () => {
-  let mockEntities: Entity[];
-  let entities: Entity[];
-  let mockLeaves: Array<Leaf<Entity>>;
-  let leaves: Array<Leaf<Entity>>;
-  let node: Node<Entity>;
+  let mockEntities: StationaryEntity[];
+  let entities: StationaryEntity[];
+  let mockLeaves: Array<Leaf<StationaryEntity>>;
+  let leaves: Array<Leaf<StationaryEntity>>;
+  let node: Node<StationaryEntity>;
 
   beforeEach(() => {
-    mockEntities = [mock(Entity), mock(Entity), mock(Entity)];
+    mockEntities = [mock(Entity), mock(Entity), mock(Entity)] as any;
     entities = mockEntities.map(instance);
     mockLeaves = [mock(Leaf), mock(Leaf), mock(Leaf), mock(Leaf)];
     leaves = mockLeaves.map(instance);

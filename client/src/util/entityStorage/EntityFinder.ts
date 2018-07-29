@@ -1,5 +1,5 @@
-import Point from '../syntax/Point';
 import {Phaser} from '../alias/phaser';
+import Point from '../syntax/Point';
 
 /**
  * Stores entities and supports for querying entities within a certain area.
@@ -9,7 +9,6 @@ interface EntityFinder<T> extends Iterable<T> {
    * Dispatches when:
    * 1. An entity is registered.
    * 2. An entity is removed.
-   * 3. An entity's coordinates is changed.
    */
   readonly onStateChanged: Phaser.Signal<StateChanged<T>>;
 
@@ -26,8 +25,6 @@ interface EntityFinder<T> extends Iterable<T> {
   listAround(coordinates: Point, radius: number): Iterable<T>;
 }
 
-export default EntityFinder;
-
 export class StateChanged<T> {
   constructor(
       readonly registeredEntities: ReadonlyArray<T>,
@@ -37,3 +34,5 @@ export class StateChanged<T> {
     }
   }
 }
+
+export default EntityFinder;

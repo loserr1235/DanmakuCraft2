@@ -1,5 +1,5 @@
-import Iterator from '../../syntax/Iterator';
-import ImmutableContainer from '../ImmutableContainer';
+import Iterator from '../syntax/Iterator';
+import ImmutableContainer from './ImmutableContainer';
 
 class SetContainer<T> implements ImmutableContainer<T> {
   constructor(private readonly values: Set<T> = new Set()) {
